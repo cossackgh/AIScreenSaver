@@ -87,7 +87,13 @@ build.bat
    # See WEATHER_API_SETUP.md for detailed instructions
    ```
 
-3. **Start the development server**
+4. **Setup Image Repositories (Optional)**
+   Configure background image sources:
+   - See `IMAGE_REPOSITORIES_SETUP.md` for detailed instructions
+   - Supports Picsum, Unsplash, GitHub repos, local images, and custom APIs
+   - Default: Picsum Photos (no setup required)
+
+5. **Start the development server**
    ```bash
    npx expo start
    ```

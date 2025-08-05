@@ -25,6 +25,40 @@ export const IMAGE_CONFIG = {
   DEFAULT_TRANSITION: 'fade' as const,
   DEFAULT_INTERVAL: 5, // minutes
   PRELOAD_COUNT: 10,
+  
+  // Примеры поддерживаемых репозиториев
+  EXAMPLE_REPOSITORIES: [
+    {
+      name: 'Picsum Photos',
+      url: 'https://picsum.photos',
+      description: 'Случайные высококачественные изображения',
+      type: 'picsum',
+    },
+    {
+      name: 'Picsum (короткая форма)',
+      url: 'picsum',
+      description: 'То же что и Picsum Photos',
+      type: 'picsum',
+    },
+    {
+      name: 'Unsplash Source',
+      url: 'unsplash',
+      description: 'Профессиональные фотографии',
+      type: 'unsplash',
+    },
+    {
+      name: 'GitHub репозиторий',
+      url: 'https://github.com/username/wallpapers',
+      description: 'Ваш собственный репозиторий с изображениями',
+      type: 'github',
+    },
+    {
+      name: 'Локальные изображения',
+      url: 'local',
+      description: 'Изображения, встроенные в приложение',
+      type: 'local',
+    },
+  ],
 };
 
 export const THEME = {
