@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { WeatherData, Settings } from '../../types';
 import { weatherService } from '../../services/weatherService';
@@ -12,16 +12,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadWeatherData();
-    
-    // Обновляем погоду каждые 30 минут
-    const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000);
-    
-    return () => clearInterval(weatherInterval);
-  }, [settings.weatherLocation]);
-
-  const loadWeatherData = async () => {
+  const loadWeatherData = useCallback(async () => {
     if (!settings.weatherEnabled) {
       setLoading(false);
       return;
@@ -49,7 +40,16 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [settings.weatherEnabled, settings.weatherLocation]);
+
+  useEffect(() => {
+    loadWeatherData();
+    
+    // Обновляем погоду каждые 30 минут
+    const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000);
+    
+    return () => clearInterval(weatherInterval);
+  }, [loadWeatherData]);
 
   const getWeatherIcon = (iconCode: string): string => {
     // Простые emoji иконки для демонстрации

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, ImageBackground, Animated, Dimensions, StyleSheet } from 'react-native';
 import { BackgroundImage, Settings } from '../../types';
 import { imageService } from '../../services/imageService';
@@ -20,21 +20,7 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const flipAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    loadImages();
-  }, [settings.imageRepository]);
-
-  useEffect(() => {
-    if (images.length > 1) {
-      const interval = setInterval(() => {
-        changeImage();
-      }, settings.imageChangeInterval * 60 * 1000); // конвертируем минуты в миллисекунды
-
-      return () => clearInterval(interval);
-    }
-  }, [images, currentImageIndex, settings.imageChangeInterval]);
-
-  const loadImages = async () => {
+  const loadImages = useCallback(async () => {
     try {
       setLoading(true);
       const newImages = await imageService.getImagesFromRepository(settings.imageRepository, 10);
@@ -46,9 +32,89 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [settings.imageRepository]);
 
-  const changeImage = () => {
+  useEffect(() => {
+    loadImages();
+  }, [loadImages]);
+
+  const performFadeTransition = useCallback((nextIndex: number) => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      setCurrentImageIndex(nextIndex);
+    }, 1000);
+  }, [fadeAnim]);
+
+  const performSlideTransition = useCallback((nextIndex: number) => {
+    Animated.sequence([
+      Animated.timing(slideAnim, {
+        toValue: -width,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      setCurrentImageIndex(nextIndex);
+    }, 500);
+  }, [slideAnim]);
+
+  const performZoomTransition = useCallback((nextIndex: number) => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.2,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      setCurrentImageIndex(nextIndex);
+    }, 1000);
+  }, [scaleAnim]);
+
+  const performFlipTransition = useCallback((nextIndex: number) => {
+    Animated.sequence([
+      Animated.timing(flipAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(flipAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      setCurrentImageIndex(nextIndex);
+    }, 800);
+  }, [flipAnim]);
+
+  const changeImage = useCallback(() => {
     if (images.length <= 1) return;
 
     const nextIndex = (currentImageIndex + 1) % images.length;
@@ -69,83 +135,17 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
       default:
         setCurrentImageIndex(nextIndex);
     }
-  };
+  }, [images.length, currentImageIndex, settings.imageTransitionEffect, performFadeTransition, performSlideTransition, performZoomTransition, performFlipTransition]);
 
-  const performFadeTransition = (nextIndex: number) => {
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-    ]).start();
+  useEffect(() => {
+    if (images.length > 1) {
+      const interval = setInterval(() => {
+        changeImage();
+      }, settings.imageChangeInterval * 60 * 1000); // конвертируем минуты в миллисекунды
 
-    setTimeout(() => {
-      setCurrentImageIndex(nextIndex);
-    }, 1000);
-  };
-
-  const performSlideTransition = (nextIndex: number) => {
-    Animated.sequence([
-      Animated.timing(slideAnim, {
-        toValue: -width,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setTimeout(() => {
-      setCurrentImageIndex(nextIndex);
-    }, 500);
-  };
-
-  const performZoomTransition = (nextIndex: number) => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setTimeout(() => {
-      setCurrentImageIndex(nextIndex);
-    }, 1000);
-  };
-
-  const performFlipTransition = (nextIndex: number) => {
-    Animated.sequence([
-      Animated.timing(flipAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(flipAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setTimeout(() => {
-      setCurrentImageIndex(nextIndex);
-    }, 800);
-  };
+      return () => clearInterval(interval);
+    }
+  }, [images.length, changeImage, settings.imageChangeInterval]);
 
   const getTransformStyle = () => {
     switch (settings.imageTransitionEffect) {
