@@ -2,7 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { weatherService } from '../../services/weatherService';
 import { Settings, WeatherData } from '../../types';
-import { convertTemperature, formatTemperature } from '../../utils/localization';
+import { 
+  convertTemperature, 
+  formatTemperature, 
+  getTranslation, 
+  translateWeatherDescription,
+  formatLocationName,
+  formatDayOfWeek
+} from '../../utils/localization';
 
 interface WeatherWidgetProps {
   settings: Settings;
@@ -78,9 +85,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
   };
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return days[date.getDay()];
+    return formatDayOfWeek(dateString, settings.language as any);
   };
 
   if (!settings.weatherEnabled) {
@@ -90,7 +95,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading weather...</Text>
+        <Text style={styles.loadingText}>
+          {getTranslation(settings.language as any, 'loading' as any) || 'Loading weather...'}
+        </Text>
       </View>
     );
   }
@@ -98,7 +105,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
   if (!weatherData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Weather unavailable</Text>
+        <Text style={styles.errorText}>
+          {getTranslation(settings.language as any, 'weatherUnavailable' as any) || 'Weather unavailable'}
+        </Text>
       </View>
     );
   }
@@ -108,7 +117,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       {/* Текущая погода */}
       <View style={styles.currentWeather}>
         <View style={styles.weatherHeader}>
-          <Text style={styles.locationText}>{weatherData.location}</Text>
+          <Text style={styles.locationText}>
+            {formatLocationName(weatherData.location, settings.language as any)}
+          </Text>
         </View>
         
         <View style={styles.currentWeatherContent}>
@@ -122,7 +133,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
                 settings.temperatureUnit
               )}
             </Text>
-            <Text style={styles.descriptionText}>{weatherData.description}</Text>
+            <Text style={styles.descriptionText}>
+              {translateWeatherDescription(weatherData.description, settings.language as any)}
+            </Text>
           </View>
         </View>
       </View>
@@ -130,7 +143,9 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       {/* Прогноз */}
       {settings.showForecast && weatherData.forecast && (
         <View style={styles.forecastContainer}>
-          <Text style={styles.forecastTitle}>Forecast</Text>
+          <Text style={styles.forecastTitle}>
+            {getTranslation(settings.language as any, 'forecast')}
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {weatherData.forecast.slice(0, settings.forecastDays).map((day, index) => (
               <View key={index} style={styles.forecastDay}>

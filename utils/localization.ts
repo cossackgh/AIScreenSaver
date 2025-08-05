@@ -40,6 +40,38 @@ export const translations = {
     minutes: 'minutes',
     days: 'days',
     notSupportedOnWeb: 'Not supported on web',
+    
+    // Weather translations
+    currentLocation: 'Current Location',
+    weatherFor: 'Weather for',
+    temperature: 'Temperature',
+    feelsLike: 'Feels like',
+    humidity: 'Humidity',
+    windSpeed: 'Wind Speed',
+    pressure: 'Pressure',
+    visibility: 'Visibility',
+    forecast: 'Forecast',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    
+    // Weather conditions
+    clearSky: 'Clear sky',
+    fewClouds: 'Few clouds',
+    scatteredClouds: 'Scattered clouds',
+    brokenClouds: 'Broken clouds',
+    showerRain: 'Shower rain',
+    rain: 'Rain',
+    thunderstorm: 'Thunderstorm',
+    snow: 'Snow',
+    mist: 'Mist',
+    partlyCloudy: 'Partly cloudy',
+    cloudy: 'Cloudy',
+    overcast: 'Overcast',
+    lightRain: 'Light rain',
+    heavyRain: 'Heavy rain',
+    drizzle: 'Drizzle',
+    loading: 'Loading...',
+    weatherUnavailable: 'Weather unavailable',
   },
   ru: {
     settings: 'Настройки',
@@ -71,6 +103,38 @@ export const translations = {
     minutes: 'минут',
     days: 'дней',
     notSupportedOnWeb: 'Не поддерживается в веб',
+    
+    // Weather translations
+    currentLocation: 'Текущее местоположение',
+    weatherFor: 'Погода для',
+    temperature: 'Температура',
+    feelsLike: 'Ощущается как',
+    humidity: 'Влажность',
+    windSpeed: 'Скорость ветра',
+    pressure: 'Давление',
+    visibility: 'Видимость',
+    forecast: 'Прогноз',
+    today: 'Сегодня',
+    tomorrow: 'Завтра',
+    
+    // Weather conditions
+    clearSky: 'Ясное небо',
+    fewClouds: 'Малооблачно',
+    scatteredClouds: 'Переменная облачность',
+    brokenClouds: 'Облачно с прояснениями',
+    showerRain: 'Ливень',
+    rain: 'Дождь',
+    thunderstorm: 'Гроза',
+    snow: 'Снег',
+    mist: 'Туман',
+    partlyCloudy: 'Частично облачно',
+    cloudy: 'Облачно',
+    overcast: 'Пасмурно',
+    lightRain: 'Легкий дождь',
+    heavyRain: 'Сильный дождь',
+    drizzle: 'Морось',
+    loading: 'Загрузка...',
+    weatherUnavailable: 'Погода недоступна',
   },
 } as const;
 
@@ -116,6 +180,86 @@ export function getSystemTemperatureUnit(): 'celsius' | 'fahrenheit' {
 // Функция для получения переводов
 export function getTranslation(language: SupportedLanguage, key: keyof typeof translations.en): string {
   return translations[language]?.[key] || translations.en[key] || key;
+}
+
+// Функция для перевода описаний погоды
+export function translateWeatherDescription(description: string, language: SupportedLanguage): string {
+  // Создаем карту соответствий для английских описаний
+  const weatherMap: Record<string, keyof typeof translations.en> = {
+    'clear sky': 'clearSky',
+    'few clouds': 'fewClouds',
+    'scattered clouds': 'scatteredClouds',
+    'broken clouds': 'brokenClouds',
+    'shower rain': 'showerRain',
+    'rain': 'rain',
+    'thunderstorm': 'thunderstorm',
+    'snow': 'snow',
+    'mist': 'mist',
+    'partly cloudy': 'partlyCloudy',
+    'cloudy': 'cloudy',
+    'overcast': 'overcast',
+    'light rain': 'lightRain',
+    'heavy rain': 'heavyRain',
+    'drizzle': 'drizzle',
+  };
+  
+  const normalizedDescription = description.toLowerCase();
+  const translationKey = weatherMap[normalizedDescription];
+  
+  if (translationKey) {
+    return getTranslation(language, translationKey);
+  }
+  
+  // Если точного соответствия нет, ищем частичные совпадения
+  for (const [english, key] of Object.entries(weatherMap)) {
+    if (normalizedDescription.includes(english) || english.includes(normalizedDescription)) {
+      return getTranslation(language, key);
+    }
+  }
+  
+  // Если перевод не найден, возвращаем оригинальное описание
+  return description;
+}
+
+// Функция для форматирования названия места
+export function formatLocationName(locationName: string, language: SupportedLanguage): string {
+  if (locationName.toLowerCase() === 'current location' || 
+      locationName.toLowerCase() === 'текущее местоположение' ||
+      locationName === 'auto') {
+    return getTranslation(language, 'currentLocation');
+  }
+  
+  return locationName;
+}
+
+// Функция для форматирования дня недели
+export function formatDayOfWeek(dateString: string, language: SupportedLanguage): string {
+  const date = new Date(dateString);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  
+  // Проверяем, это сегодня или завтра
+  if (date.toDateString() === today.toDateString()) {
+    return getTranslation(language, 'today');
+  }
+  if (date.toDateString() === tomorrow.toDateString()) {
+    return getTranslation(language, 'tomorrow');
+  }
+  
+  // Массивы дней недели для разных языков
+  const daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const daysRu = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  
+  const dayIndex = date.getDay();
+  
+  switch (language) {
+    case 'ru':
+      return daysRu[dayIndex];
+    case 'en':
+    default:
+      return daysEn[dayIndex];
+  }
 }
 
 // Конвертация температуры

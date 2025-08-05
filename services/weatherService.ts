@@ -31,10 +31,18 @@ export const weatherService = {
     try {
       // Для демонстрации используем mock данные
       // В реальном приложении здесь будет запрос к API
+      const weatherDescriptions = [
+        'clear sky', 'few clouds', 'scattered clouds', 'broken clouds',
+        'shower rain', 'rain', 'thunderstorm', 'snow', 'mist',
+        'partly cloudy', 'cloudy', 'overcast', 'light rain', 'heavy rain', 'drizzle'
+      ];
+      
+      const randomDescription = weatherDescriptions[Math.floor(Math.random() * weatherDescriptions.length)];
+      
       const mockWeatherData: WeatherData = {
         location: 'Current Location',
         temperature: Math.round(Math.random() * 30 + 5),
-        description: 'Partly cloudy',
+        description: randomDescription,
         icon: '02d',
         forecast: [
           {
@@ -85,10 +93,18 @@ export const weatherService = {
   async getWeatherByCity(city: string): Promise<WeatherData | null> {
     try {
       // Для демонстрации используем mock данные
+      const weatherDescriptions = [
+        'clear sky', 'few clouds', 'scattered clouds', 'broken clouds',
+        'shower rain', 'rain', 'thunderstorm', 'snow', 'mist',
+        'partly cloudy', 'cloudy', 'overcast', 'light rain', 'heavy rain', 'drizzle'
+      ];
+      
+      const randomDescription = weatherDescriptions[Math.floor(Math.random() * weatherDescriptions.length)];
+      
       const mockWeatherData: WeatherData = {
         location: city,
         temperature: Math.round(Math.random() * 30 + 5),
-        description: 'Clear sky',
+        description: randomDescription,
         icon: '01d',
         forecast: [
           {

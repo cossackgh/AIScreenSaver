@@ -1,6 +1,27 @@
 # AI Screensaver - React Native App 🕐🌤️
 
-A beautiful fullscreen screensaver application built with React Native and Expo, featuring digital clock, weather widget, and rotating background images with smooth transition effects.
+A be### 🌤️ Weather Widget
+- Real-time current weather display
+- Temperature display
+- Location-based weather (auto-detect or manual)
+- 3-5 day weather forecast
+- Weather icons and descriptions
+- **Full localization support (English/Russian)**
+- **Localized weather conditions and place names**
+
+### 🖼️ Dynamic Backgrounds
+- Rotating background images from remote repositories
+- Multiple transition effects (fade, slide, zoom, flip)
+- Customizable change intervals
+- Smooth animations
+
+### ⚙️ Comprehensive Settings
+- Time and date customization
+- Weather preferences with localization
+- Background image configuration
+- Transition effects selection
+- Keep screen awake option
+- **Multi-language support (English/Russian)**screensaver application built with React Native and Expo, featuring digital clock, weather widget, and rotating background images with smooth transition effects.
 
 ## 📦 Ready-to-Use Builds
 
