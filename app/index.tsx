@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ScreensaverScreen } from '../../components/screensaver/ScreensaverScreen';
-import { SettingsScreen } from '../../components/settings/SettingsScreen';
+import { StatusBar } from 'expo-status-bar';
+import { ScreensaverScreen } from '../components/screensaver/ScreensaverScreen';
+import { SettingsScreen } from '../components/settings/SettingsScreen';
 
-export default function HomeScreen() {
+export default function RootScreen() {
   const [showSettings, setShowSettings] = useState(false);
 
   const handleSettingsPress = () => {
@@ -16,6 +17,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar hidden />
       {showSettings ? (
         <SettingsScreen onBack={handleBackPress} />
       ) : (

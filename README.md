@@ -1,33 +1,211 @@
-# Welcome to your Expo app 👋
+# AI Screensaver - React Native App 🕐🌤️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A beautiful fullscreen screensaver application built with React Native and Expo, featuring digital clock, weather widget, and rotating background images with smooth transition effects.
 
-## Get started
+## 📦 Ready-to-Use Builds
 
-1. Install dependencies
+### ✅ Web Version (Ready)
+**Location**: `dist/` folder  
+**Size**: ~3.8 MB  
+**Files**: 31 files including HTML, CSS, JS, and assets  
+**Deploy**: Upload contents of `dist/` folder to any web server  
 
+### 📱 Android Version (Export Ready)
+**Location**: `dist/` folder  
+**Bundle**: Android Hermes Bytecode (3.46 MB)  
+**Status**: Ready for APK creation with Android SDK  
+
+### 🚀 Quick Build Commands
+```bash
+# Build both platforms
+npm run build:all
+
+# Build web only
+npm run build:web
+
+# Build Android export only
+npm run build:android
+
+# Create Android APK (requires Java & Android SDK)
+npm run build:android:apk
+
+# Automated build (Windows)
+build.bat
+
+# Automated build (Linux/macOS)
+./build.sh
+```
+
+## Features ✨
+
+### � Digital Clock
+- Large, customizable time display
+- 12h/24h format options
+- Show/hide seconds
+- Date display with multiple formats
+- Elegant typography with text shadows
+
+### 🌤️ Weather Widget
+- Current weather conditions
+- Temperature display
+- Location-based weather (auto-detect or manual)
+- 3-5 day weather forecast
+- Weather icons and descriptions
+
+### 🖼️ Dynamic Backgrounds
+- Rotating background images from remote repositories
+- Multiple transition effects (fade, slide, zoom, flip)
+- Customizable change intervals
+- Smooth animations
+
+### ⚙️ Comprehensive Settings
+- Time and date customization
+- Weather preferences
+- Background image configuration
+- Transition effects selection
+- Keep screen awake option
+
+## Installation 🚀
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd aiscreensaver
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Start the development server**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Usage 📱
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Running the App
+- Use Expo Go app on your mobile device, or
+- Run in iOS Simulator / Android Emulator
+- Use `npm start` task in VS Code
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Navigation
+- **Tap anywhere** on the screensaver to access settings
+- **Back button** in settings to return to screensaver
+- **Reset button** to restore default settings
 
-## Get a fresh project
+## Project Structure 📁
 
-When you're ready, run:
+```
+aiscreensaver/
+├── app/                          # Expo Router pages
+├── components/
+│   ├── screensaver/             # Main screensaver components
+│   │   ├── ScreensaverScreen.tsx
+│   │   ├── DigitalClock.tsx
+│   │   ├── WeatherWidget.tsx
+│   │   └── BackgroundSlider.tsx
+│   └── settings/                # Settings screen
+│       └── SettingsScreen.tsx
+├── services/                    # Business logic
+│   ├── settingsService.ts       # Settings persistence
+│   ├── weatherService.ts        # Weather API integration
+│   └── imageService.ts          # Image loading
+├── types/                       # TypeScript definitions
+│   └── index.ts
+└── .github/
+    └── copilot-instructions.md  # Development guidelines
+```
+
+## Configuration ⚙️
+
+### Weather API
+Currently uses mock data for demonstration. To integrate with a real weather API:
+
+1. Get an API key from [OpenWeatherMap](https://openweathermap.org/api)
+2. Update `weatherService.ts` with your API key
+3. Uncomment real API calls
+
+### Image Sources
+Default uses [Picsum Photos](https://picsum.photos/) for random images. You can configure:
+- Custom image repository URLs
+- Local image folders
+- CDN endpoints
+
+## Development 🛠️
+
+### Tech Stack
+- **React Native** (Latest)
+- **Expo** (Managed workflow)
+- **TypeScript** (Type safety)
+- **Expo Router** (File-based routing)
+- **AsyncStorage** (Settings persistence)
+
+### Dependencies
+- `@react-native-async-storage/async-storage` - Settings storage
+- `expo-location` - GPS location services
+- `expo-linear-gradient` - Gradient backgrounds
+- `expo-keep-awake` - Prevent screen sleep
+- `expo-font` - Custom fonts
+- `@expo/vector-icons` - Icon library
+
+### Key Components
+
+#### ScreensaverScreen
+Main fullscreen component orchestrating clock, weather, and background
+
+#### DigitalClock
+Large time display with customizable formats and styling
+
+#### WeatherWidget
+Current conditions and forecast with location detection
+
+#### BackgroundSlider
+Image rotation with smooth transition animations
+
+#### SettingsScreen
+Comprehensive configuration interface
+
+## Customization 🎨
+
+### Adding New Transition Effects
+1. Add effect type to `TransitionEffect` type
+2. Implement animation in `BackgroundSlider.tsx`
+3. Add option to settings UI
+
+### Custom Fonts
+1. Add font files to `assets/fonts/`
+2. Load in `_layout.tsx`
+3. Apply in component styles
+
+### Weather Providers
+1. Create new service in `services/`
+2. Implement `WeatherData` interface
+3. Update `WeatherWidget` to use new service
+
+## Contributing 🤝
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## License 📄
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support 💬
+
+For questions and support:
+- Create an issue on GitHub
+- Check the documentation
+- Review the code comments
+
+---
+
+Built with ❤️ using React Native and Expo
 
 ```bash
 npm run reset-project
