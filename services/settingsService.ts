@@ -27,6 +27,7 @@ function createDefaultSettings(): Settings {
     imageRepository: 'https://github.com/cossackgh/screen-wallpapers/tree/262c161ca691d218d86c1f7bcb0fd4afa3cf40e1/Arts',
     imageTransitionEffect: 'fade',
     imageChangeInterval: 5,
+    imageDisplayOrder: 'sequential',
     keepScreenOn: true,
   };
 }

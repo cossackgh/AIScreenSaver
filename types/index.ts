@@ -39,6 +39,7 @@ export interface Settings {
   imageRepository: string;
   imageTransitionEffect: 'fade' | 'slide' | 'zoom' | 'flip';
   imageChangeInterval: number; // в минутах
+  imageDisplayOrder: 'sequential' | 'random'; // порядок отображения изображений
   
   // Общие настройки
   keepScreenOn: boolean;

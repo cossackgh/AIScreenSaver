@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Alert,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { Settings } from '../../types';
 import { settingsService } from '../../services/settingsService';
+import { Settings } from '../../types';
 import { keepAwakeUtils } from '../../utils/keepAwakeUtils';
-import { 
-  SUPPORTED_LANGUAGES, 
-  SupportedLanguage, 
-  getTranslation, 
-  translations 
+import {
+    SUPPORTED_LANGUAGES,
+    SupportedLanguage,
+    getTranslation,
+    translations
 } from '../../utils/localization';
 
 interface SettingsScreenProps {
@@ -374,6 +374,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
                   </Text>
                 </TouchableOpacity>
               ))}
+            </View>
+          </View>
+
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>{t('imageDisplayOrder')}</Text>
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity
+                style={[styles.toggleOption, settings.imageDisplayOrder === 'sequential' && styles.toggleOptionActive]}
+                onPress={() => updateSetting('imageDisplayOrder', 'sequential')}
+              >
+                <Text style={[styles.toggleText, settings.imageDisplayOrder === 'sequential' && styles.toggleTextActive]}>
+                  {t('sequential')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.toggleOption, settings.imageDisplayOrder === 'random' && styles.toggleOptionActive]}
+                onPress={() => updateSetting('imageDisplayOrder', 'random')}
+              >
+                <Text style={[styles.toggleText, settings.imageDisplayOrder === 'random' && styles.toggleTextActive]}>
+                  {t('random')}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

@@ -13,12 +13,25 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   const [images, setImages] = useState<BackgroundImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [shuffledIndices, setShuffledIndices] = useState<number[]>([]);
+  const [currentShuffledIndex, setCurrentShuffledIndex] = useState(0);
   
   // Анимированные значения для эффектов перехода
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const flipAnim = useRef(new Animated.Value(0)).current;
+
+  // Функция для создания перемешанного массива индексов
+  const createShuffledIndices = useCallback((length: number) => {
+    const indices = Array.from({ length }, (_, i) => i);
+    // Перемешиваем массив по алгоритму Фишера-Йетса
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+  }, []);
 
   const loadImages = useCallback(async () => {
     console.log('🖼️ [BackgroundSlider] Начинаем загрузку изображений...');
@@ -35,6 +48,16 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
         console.log('🖼️ [BackgroundSlider] Изображения предзагружены:', preloadedImages.filter(img => img.loaded).length);
         setImages(preloadedImages);
         setCurrentImageIndex(0);
+        
+        // Создаем перемешанный массив индексов для случайного порядка
+        if (settings.imageDisplayOrder === 'random') {
+          const shuffled = createShuffledIndices(preloadedImages.length);
+          setShuffledIndices(shuffled);
+          setCurrentShuffledIndex(0);
+        } else {
+          setShuffledIndices([]);
+          setCurrentShuffledIndex(0);
+        }
       } else {
         console.warn('🖼️ [BackgroundSlider] Изображения не получены, используем пустой массив');
         setImages([]);
@@ -51,6 +74,20 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   useEffect(() => {
     loadImages();
   }, [loadImages]);
+
+  // Пересоздаем перемешанный массив при изменении настройки порядка отображения
+  useEffect(() => {
+    if (images.length > 0) {
+      if (settings.imageDisplayOrder === 'random') {
+        const shuffled = createShuffledIndices(images.length);
+        setShuffledIndices(shuffled);
+        setCurrentShuffledIndex(0);
+      } else {
+        setShuffledIndices([]);
+        setCurrentShuffledIndex(0);
+      }
+    }
+  }, [settings.imageDisplayOrder, images.length, createShuffledIndices]);
 
   const performFadeTransition = useCallback((nextIndex: number) => {
     Animated.sequence([
@@ -131,7 +168,23 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   const changeImage = useCallback(() => {
     if (images.length <= 1) return;
 
-    const nextIndex = (currentImageIndex + 1) % images.length;
+    let nextIndex: number;
+    
+    if (settings.imageDisplayOrder === 'random') {
+      // Случайный порядок - используем перемешанный массив индексов
+      const nextShuffledIndex = (currentShuffledIndex + 1) % shuffledIndices.length;
+      nextIndex = shuffledIndices[nextShuffledIndex];
+      setCurrentShuffledIndex(nextShuffledIndex);
+      
+      // Если дошли до конца перемешанного массива, создаем новый
+      if (nextShuffledIndex === 0) {
+        const newShuffled = createShuffledIndices(images.length);
+        setShuffledIndices(newShuffled);
+      }
+    } else {
+      // Последовательный порядок
+      nextIndex = (currentImageIndex + 1) % images.length;
+    }
     
     switch (settings.imageTransitionEffect) {
       case 'fade':
@@ -149,7 +202,19 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
       default:
         setCurrentImageIndex(nextIndex);
     }
-  }, [images.length, currentImageIndex, settings.imageTransitionEffect, performFadeTransition, performSlideTransition, performZoomTransition, performFlipTransition]);
+  }, [
+    images.length, 
+    currentImageIndex, 
+    currentShuffledIndex,
+    shuffledIndices,
+    settings.imageTransitionEffect, 
+    settings.imageDisplayOrder,
+    performFadeTransition, 
+    performSlideTransition, 
+    performZoomTransition, 
+    performFlipTransition,
+    createShuffledIndices
+  ]);
 
   useEffect(() => {
     if (images.length > 1) {
