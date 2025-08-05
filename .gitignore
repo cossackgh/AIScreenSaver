@@ -37,4 +37,16 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Temporary and test files
+test-*.js
+test-*.md
+test-*.ts
+test-*.tsx
+*Test.tsx
+*Test.ts
+*.tmp
+*.temp
+temp/
+tmp/
+
 app-example
