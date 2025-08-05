@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { weatherService } from '../../services/weatherService';
 import { Settings, WeatherData } from '../../types';
-import { 
-  convertTemperature, 
-  formatTemperature, 
-  getTranslation, 
-  translateWeatherDescription,
+import {
+  convertTemperature,
+  formatDayOfWeek,
   formatLocationName,
-  formatDayOfWeek
+  formatTemperature,
+  getTranslation,
+  translateWeatherDescription
 } from '../../utils/localization';
 
 interface WeatherWidgetProps {
