@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { settingsService } from '../../services/settingsService';
 import { Settings } from '../../types';
 import { keepAwakeUtils } from '../../utils/keepAwakeUtils';
 import {
-    SUPPORTED_LANGUAGES,
-    SupportedLanguage,
-    getTranslation,
-    translations
+  SUPPORTED_LANGUAGES,
+  SupportedLanguage,
+  getTranslation,
+  translations
 } from '../../utils/localization';
 
 interface SettingsScreenProps {
@@ -26,6 +27,8 @@ interface SettingsScreenProps {
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
   const [settings, setSettings] = useState<Settings>();
   const [loading, setLoading] = useState(true);
+  const [showAddCityModal, setShowAddCityModal] = useState(false);
+  const [newCityName, setNewCityName] = useState('');
   const keepAwakeSupported = keepAwakeUtils.isSupported();
 
   useEffect(() => {
@@ -68,22 +71,21 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
       return;
     }
 
-    Alert.prompt(
-      t('addCity'),
-      t('enterCityName'),
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'OK',
-          onPress: (cityName) => {
-            if (cityName && cityName.trim()) {
-              const newCities = [...settings.weatherCities, cityName.trim()];
-              updateSetting('weatherCities', newCities);
-            }
-          }
-        }
-      ]
-    );
+    setShowAddCityModal(true);
+  };
+
+  const handleAddCity = () => {
+    if (!settings || !newCityName.trim()) return;
+    
+    const newCities = [...settings.weatherCities, newCityName.trim()];
+    updateSetting('weatherCities', newCities);
+    setNewCityName('');
+    setShowAddCityModal(false);
+  };
+
+  const handleCancelAddCity = () => {
+    setNewCityName('');
+    setShowAddCityModal(false);
   };
 
   const removeCity = (index: number) => {
@@ -523,6 +525,42 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
         </View>
 
       </ScrollView>
+
+      {/* Модальное окно для добавления города */}
+      <Modal
+        visible={showAddCityModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCancelAddCity}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t('addCity')}</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={newCityName}
+              onChangeText={setNewCityName}
+              placeholder={t('enterCityName')}
+              placeholderTextColor="#999"
+              autoFocus={true}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={handleCancelAddCity}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonOK]}
+                onPress={handleAddCity}
+              >
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -756,5 +794,57 @@ const styles = StyleSheet.create({
   removeButtonText: {
     color: 'white',
     fontSize: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#2a2a2a',
+    borderRadius: 12,
+    padding: 20,
+    width: '80%',
+    maxWidth: 300,
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalInput: {
+    backgroundColor: '#333',
+    color: 'white',
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#555',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 6,
+    marginHorizontal: 5,
+  },
+  modalButtonCancel: {
+    backgroundColor: '#666',
+  },
+  modalButtonOK: {
+    backgroundColor: '#4a9eff',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });
