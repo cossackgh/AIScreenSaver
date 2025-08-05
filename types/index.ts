@@ -31,6 +31,8 @@ export interface Settings {
   // Погода
   weatherEnabled: boolean;
   weatherLocation: string;
+  weatherCities: string[]; // Список сохраненных городов (до 5)
+  currentCityIndex: number; // Индекс текущего выбранного города
   showForecast: boolean;
   forecastDays: 3 | 5;
   temperatureUnit: 'celsius' | 'fahrenheit'; // Единицы измерения температуры

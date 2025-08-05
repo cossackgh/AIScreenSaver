@@ -60,6 +60,56 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
     saveSettings(newSettings);
   };
 
+  const addCity = () => {
+    if (!settings) return;
+    
+    if (settings.weatherCities.length >= 5) {
+      Alert.alert(t('maxCitiesReached'), t('maxCitiesReached'));
+      return;
+    }
+
+    Alert.prompt(
+      t('addCity'),
+      t('enterCityName'),
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'OK',
+          onPress: (cityName) => {
+            if (cityName && cityName.trim()) {
+              const newCities = [...settings.weatherCities, cityName.trim()];
+              updateSetting('weatherCities', newCities);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const removeCity = (index: number) => {
+    if (!settings) return;
+    
+    const newCities = settings.weatherCities.filter((_, i) => i !== index);
+    let newCurrentIndex = settings.currentCityIndex;
+    
+    // Корректируем индекс текущего города при удалении
+    if (settings.currentCityIndex === index) {
+      newCurrentIndex = 0; // Переключаемся на первый город
+    } else if (settings.currentCityIndex > index) {
+      newCurrentIndex = settings.currentCityIndex - 1;
+    }
+    
+    updateSetting('weatherCities', newCities);
+    updateSetting('currentCityIndex', newCurrentIndex);
+  };
+
+  const selectCity = (index: number) => {
+    if (!settings) return;
+    updateSetting('currentCityIndex', index);
+    // Обновляем weatherLocation для совместимости
+    updateSetting('weatherLocation', settings.weatherCities[index]);
+  };
+
   const t = (key: keyof typeof translations.en): string => {
     if (!settings) return key;
     return getTranslation(settings.language as SupportedLanguage, key);
@@ -258,6 +308,57 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
               thumbColor={settings.weatherEnabled ? '#f5dd4b' : '#f4f3f4'}
             />
           </View>
+
+          {/* Управление городами */}
+          {settings.weatherEnabled && (
+            <>
+              <View style={styles.settingRow}>
+                <Text style={styles.settingLabel}>{t('weatherCities')}</Text>
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={addCity}
+                  disabled={settings.weatherCities.length >= 5}
+                >
+                  <Text style={[
+                    styles.addButtonText,
+                    settings.weatherCities.length >= 5 && styles.addButtonTextDisabled
+                  ]}>
+                    {t('addCity')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Список городов */}
+              {settings.weatherCities.map((city, index) => (
+                <View key={`${city}-${index}`} style={styles.cityRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.cityButton,
+                      settings.currentCityIndex === index && styles.cityButtonActive
+                    ]}
+                    onPress={() => selectCity(index)}
+                  >
+                    <Text style={[
+                      styles.cityButtonText,
+                      settings.currentCityIndex === index && styles.cityButtonTextActive
+                    ]}>
+                      {city === 'auto' ? t('currentLocation') : city}
+                      {settings.currentCityIndex === index && ' ✓'}
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  {city !== 'auto' && (
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => removeCity(index)}
+                    >
+                      <Text style={styles.removeButtonText}>{t('removeCity')}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </>
+          )}
 
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>{t('temperatureUnit')}</Text>
@@ -606,5 +707,54 @@ const styles = StyleSheet.create({
   colorButtonActive: {
     borderColor: '#4a9eff',
     borderWidth: 3,
+  },
+  addButton: {
+    backgroundColor: '#4a9eff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  addButtonTextDisabled: {
+    color: '#999',
+  },
+  cityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginVertical: 2,
+  },
+  cityButton: {
+    flex: 1,
+    backgroundColor: '#333',
+    padding: 12,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  cityButtonActive: {
+    backgroundColor: '#4a9eff',
+  },
+  cityButtonText: {
+    color: '#ccc',
+    fontSize: 14,
+  },
+  cityButtonTextActive: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  removeButton: {
+    backgroundColor: '#ff4444',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  removeButtonText: {
+    color: 'white',
+    fontSize: 12,
   },
 });

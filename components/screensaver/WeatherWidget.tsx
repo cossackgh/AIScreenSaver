@@ -31,7 +31,11 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       setLoading(true);
       let weather: WeatherData | null = null;
 
-      if (settings.weatherLocation === 'auto') {
+      // Получаем текущий город из массива городов
+      const currentCity = settings.weatherCities?.[settings.currentCityIndex] || settings.weatherLocation || 'auto';
+      console.log('🌤️ [WeatherWidget] Текущий город:', currentCity, 'индекс:', settings.currentCityIndex);
+
+      if (currentCity === 'auto') {
         console.log('🌤️ [WeatherWidget] Получаем автоматическое местоположение');
         const location = await weatherService.getCurrentLocation();
         if (location) {
@@ -44,8 +48,8 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
           console.warn('🌤️ [WeatherWidget] Не удалось получить местоположение');
         }
       } else {
-        console.log('🌤️ [WeatherWidget] Получаем погоду для города:', settings.weatherLocation);
-        weather = await weatherService.getWeatherByCity(settings.weatherLocation);
+        console.log('🌤️ [WeatherWidget] Получаем погоду для города:', currentCity);
+        weather = await weatherService.getWeatherByCity(currentCity);
       }
 
       console.log('🌤️ [WeatherWidget] Данные погоды получены:', weather);
@@ -57,7 +61,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       setLoading(false);
       console.log('🌤️ [WeatherWidget] Загрузка погоды завершена');
     }
-  }, [settings.weatherEnabled, settings.weatherLocation]);
+  }, [settings.weatherEnabled, settings.weatherCities, settings.currentCityIndex, settings.weatherLocation]);
 
   useEffect(() => {
     loadWeatherData();
@@ -128,7 +132,14 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       <View style={styles.currentWeather}>
         <View style={styles.weatherHeader}>
           <Text style={styles.locationText}>
-            {formatLocationName(weatherData.location, settings.language as any)}
+            {(() => {
+              const currentCity = settings.weatherCities?.[settings.currentCityIndex] || settings.weatherLocation || 'auto';
+              if (currentCity === 'auto') {
+                return formatLocationName(weatherData.location, settings.language as any);
+              } else {
+                return currentCity;
+              }
+            })()}
           </Text>
         </View>
         
