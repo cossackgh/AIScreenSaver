@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { ScreensaverScreen } from '../components/screensaver/ScreensaverScreen';
 import { SettingsScreen } from '../components/settings/SettingsScreen';
 

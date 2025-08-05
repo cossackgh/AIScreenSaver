@@ -24,7 +24,7 @@ function createDefaultSettings(): Settings {
     showForecast: true,
     forecastDays: 5,
     temperatureUnit: getSystemTemperatureUnit(), // Автоматическое определение единиц температуры
-    imageRepository: 'https://picsum.photos',
+    imageRepository: 'https://github.com/cossackgh/screen-wallpapers/tree/262c161ca691d218d86c1f7bcb0fd4afa3cf40e1/Arts',
     imageTransitionEffect: 'fade',
     imageChangeInterval: 5,
     keepScreenOn: true,

@@ -277,6 +277,11 @@ export function convertTemperature(temp: number, fromUnit: 'celsius' | 'fahrenhe
 
 // Форматирование температуры с единицами
 export function formatTemperature(temp: number, unit: 'celsius' | 'fahrenheit'): string {
+  if (typeof temp !== 'number' || isNaN(temp)) {
+    console.warn('formatTemperature: invalid temperature value:', temp);
+    return '--°';
+  }
+  
   const symbol = unit === 'celsius' ? '°C' : '°F';
   return `${Math.round(temp)}${symbol}`;
 }

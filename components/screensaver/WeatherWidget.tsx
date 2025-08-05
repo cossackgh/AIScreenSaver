@@ -20,6 +20,8 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
   const [loading, setLoading] = useState(true);
 
   const loadWeatherData = useCallback(async () => {
+    console.log('🌤️ [WeatherWidget] Начинаем загрузку погоды, включена:', settings.weatherEnabled);
+    
     if (!settings.weatherEnabled) {
       setLoading(false);
       return;
@@ -30,22 +32,30 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       let weather: WeatherData | null = null;
 
       if (settings.weatherLocation === 'auto') {
+        console.log('🌤️ [WeatherWidget] Получаем автоматическое местоположение');
         const location = await weatherService.getCurrentLocation();
         if (location) {
+          console.log('🌤️ [WeatherWidget] Местоположение получено:', location);
           weather = await weatherService.getWeatherByLocation(
             location.latitude, 
             location.longitude
           );
+        } else {
+          console.warn('🌤️ [WeatherWidget] Не удалось получить местоположение');
         }
       } else {
+        console.log('🌤️ [WeatherWidget] Получаем погоду для города:', settings.weatherLocation);
         weather = await weatherService.getWeatherByCity(settings.weatherLocation);
       }
 
+      console.log('🌤️ [WeatherWidget] Данные погоды получены:', weather);
       setWeatherData(weather);
     } catch (error) {
-      console.error('Error loading weather:', error);
+      console.error('❌ [WeatherWidget] Ошибка загрузки погоды:', error);
+      setWeatherData(null);
     } finally {
       setLoading(false);
+      console.log('🌤️ [WeatherWidget] Загрузка погоды завершена');
     }
   }, [settings.weatherEnabled, settings.weatherLocation]);
 
@@ -129,12 +139,12 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
           <View style={styles.temperatureContainer}>
             <Text style={styles.temperatureText}>
               {formatTemperature(
-                convertTemperature(weatherData.temperature, 'celsius', settings.temperatureUnit),
+                convertTemperature(weatherData.temperature || 0, 'celsius', settings.temperatureUnit),
                 settings.temperatureUnit
               )}
             </Text>
             <Text style={styles.descriptionText}>
-              {translateWeatherDescription(weatherData.description, settings.language as any)}
+              {translateWeatherDescription(weatherData.description || '', settings.language as any)}
             </Text>
           </View>
         </View>
@@ -153,11 +163,11 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
                 <Text style={styles.forecastIcon}>{getWeatherIcon(day.icon)}</Text>
                 <Text style={styles.forecastTemp}>
                   {formatTemperature(
-                    convertTemperature(day.temp_max, 'celsius', settings.temperatureUnit),
+                    convertTemperature(day.temp_max || 0, 'celsius', settings.temperatureUnit),
                     settings.temperatureUnit
                   )}/
                   {formatTemperature(
-                    convertTemperature(day.temp_min, 'celsius', settings.temperatureUnit),
+                    convertTemperature(day.temp_min || 0, 'celsius', settings.temperatureUnit),
                     settings.temperatureUnit
                   )}
                 </Text>

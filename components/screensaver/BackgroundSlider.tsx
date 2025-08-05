@@ -21,16 +21,30 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   const flipAnim = useRef(new Animated.Value(0)).current;
 
   const loadImages = useCallback(async () => {
+    console.log('🖼️ [BackgroundSlider] Начинаем загрузку изображений...');
+    console.log('🖼️ [BackgroundSlider] Репозиторий:', settings.imageRepository);
+    
     try {
       setLoading(true);
       const newImages = await imageService.getImagesFromRepository(settings.imageRepository, 10);
-      const preloadedImages = await imageService.preloadImages(newImages);
-      setImages(preloadedImages);
-      setCurrentImageIndex(0);
+      console.log('🖼️ [BackgroundSlider] Получено изображений:', newImages.length);
+      
+      if (newImages.length > 0) {
+        console.log('🖼️ [BackgroundSlider] Первое изображение:', newImages[0]);
+        const preloadedImages = await imageService.preloadImages(newImages);
+        console.log('🖼️ [BackgroundSlider] Изображения предзагружены:', preloadedImages.filter(img => img.loaded).length);
+        setImages(preloadedImages);
+        setCurrentImageIndex(0);
+      } else {
+        console.warn('🖼️ [BackgroundSlider] Изображения не получены, используем пустой массив');
+        setImages([]);
+      }
     } catch (error) {
-      console.error('Error loading images:', error);
+      console.error('❌ [BackgroundSlider] Ошибка загрузки изображений:', error);
+      setImages([]);
     } finally {
       setLoading(false);
+      console.log('🖼️ [BackgroundSlider] Загрузка завершена');
     }
   }, [settings.imageRepository]);
 
@@ -171,7 +185,17 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
     }
   };
 
-  if (loading || images.length === 0) {
+  if (loading) {
+    console.log('🖼️ [BackgroundSlider] Показываем загрузку...');
+    return (
+      <View style={styles.defaultBackground}>
+        {/* Градиентный фон по умолчанию */}
+      </View>
+    );
+  }
+
+  if (images.length === 0) {
+    console.warn('🖼️ [BackgroundSlider] Нет изображений, показываем фон по умолчанию');
     return (
       <View style={styles.defaultBackground}>
         {/* Градиентный фон по умолчанию */}
@@ -180,6 +204,17 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   }
 
   const currentImage = images[currentImageIndex];
+  
+  if (!currentImage || !currentImage.url) {
+    console.warn('🖼️ [BackgroundSlider] Текущее изображение некорректно:', currentImage);
+    return (
+      <View style={styles.defaultBackground}>
+        {/* Градиентный фон по умолчанию */}
+      </View>
+    );
+  }
+
+  console.log('🖼️ [BackgroundSlider] Рендерим изображение:', currentImage.filename, 'URL:', currentImage.url);
 
   return (
     <Animated.View style={[styles.container, getTransformStyle()]}>
@@ -187,6 +222,13 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
         source={{ uri: currentImage.url }}
         style={styles.backgroundImage}
         resizeMode="cover"
+        onError={(error) => {
+          console.error('❌ [BackgroundSlider] Ошибка загрузки изображения:', error.nativeEvent?.error);
+          console.error('❌ [BackgroundSlider] Проблемное изображение:', currentImage.url);
+        }}
+        onLoad={() => {
+          console.log('✅ [BackgroundSlider] Изображение успешно загружено:', currentImage.filename);
+        }}
       >
         <View style={styles.overlay} />
       </ImageBackground>
