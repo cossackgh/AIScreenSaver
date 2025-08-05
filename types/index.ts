@@ -14,6 +14,42 @@ export interface ForecastDay {
   icon: string;
 }
 
+// Типы для OpenWeatherMap API
+export interface OpenWeatherMapResponse {
+  name: string;
+  coord: {
+    lat: number;
+    lon: number;
+  };
+  main: {
+    temp: number;
+    temp_max: number;
+    temp_min: number;
+    humidity: number;
+  };
+  weather: Array<{
+    main: string;
+    description: string;
+    icon: string;
+  }>;
+}
+
+export interface OpenWeatherMapForecast {
+  list: Array<{
+    dt: number;
+    main: {
+      temp: number;
+      temp_max: number;
+      temp_min: number;
+    };
+    weather: Array<{
+      main: string;
+      description: string;
+      icon: string;
+    }>;
+  }>;
+}
+
 export interface Settings {
   // Время и дата
   timeFormat: '12h' | '24h';
