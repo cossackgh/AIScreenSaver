@@ -48,16 +48,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
 
   const saveSettings = async (newSettings: Settings) => {
     try {
+      console.log('💾 [SettingsScreen] Сохраняем настройки:', newSettings);
       await settingsService.saveSettings(newSettings);
       setSettings(newSettings);
+      console.log('✅ [SettingsScreen] Настройки успешно сохранены');
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error('❌ [SettingsScreen] Ошибка сохранения настроек:', error);
       Alert.alert('Error', 'Failed to save settings');
     }
   };
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     if (!settings) return;
+    
+    console.log('⚙️ [SettingsScreen] Обновляем настройку:', key, 'новое значение:', value);
     
     const newSettings = { ...settings, [key]: value };
     saveSettings(newSettings);
@@ -91,8 +95,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
   const removeCity = (index: number) => {
     if (!settings) return;
     
+    console.log('🗑️ [SettingsScreen] Удаляем город с индексом:', index, 'город:', settings.weatherCities[index]);
+    console.log('🗑️ [SettingsScreen] Текущий список городов:', settings.weatherCities);
+    
     const newCities = settings.weatherCities.filter((_, i) => i !== index);
     let newCurrentIndex = settings.currentCityIndex;
+    
+    console.log('🗑️ [SettingsScreen] Новый список городов:', newCities);
     
     // Корректируем индекс текущего города при удалении
     if (settings.currentCityIndex === index) {
@@ -101,8 +110,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
       newCurrentIndex = settings.currentCityIndex - 1;
     }
     
-    updateSetting('weatherCities', newCities);
-    updateSetting('currentCityIndex', newCurrentIndex);
+    console.log('🗑️ [SettingsScreen] Новый индекс:', newCurrentIndex);
+    
+    // Обновляем обе настройки одновременно, чтобы избежать проблем с асинхронностью
+    const newSettings = { 
+      ...settings, 
+      weatherCities: newCities, 
+      currentCityIndex: newCurrentIndex 
+    };
+    saveSettings(newSettings);
   };
 
   const selectCity = (index: number) => {

@@ -52,11 +52,14 @@ export const settingsService = {
 
   async saveSettings(settings: Partial<Settings>): Promise<void> {
     try {
+      console.log('💾 [settingsService] Сохраняем настройки:', settings);
       const currentSettings = await this.getSettings();
       const newSettings = { ...currentSettings, ...settings };
+      console.log('💾 [settingsService] Финальные настройки для сохранения:', newSettings);
       await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(newSettings));
+      console.log('✅ [settingsService] Настройки успешно сохранены в AsyncStorage');
     } catch (error) {
-      console.error('Error saving settings:', error);
+      console.error('❌ [settingsService] Ошибка сохранения настроек:', error);
     }
   },
 
