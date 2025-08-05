@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { WeatherData, Settings } from '../../types';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { weatherService } from '../../services/weatherService';
-import { formatTemperature, convertTemperature } from '../../utils/localization';
+import { Settings, WeatherData } from '../../types';
+import { convertTemperature, formatTemperature } from '../../utils/localization';
 
 interface WeatherWidgetProps {
   settings: Settings;

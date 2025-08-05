@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, ImageBackground, Animated, Dimensions, StyleSheet } from 'react-native';
-import { BackgroundImage, Settings } from '../../types';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, ImageBackground, StyleSheet, View } from 'react-native';
 import { imageService } from '../../services/imageService';
+import { BackgroundImage, Settings } from '../../types';
 
 interface BackgroundSliderProps {
   settings: Settings;
