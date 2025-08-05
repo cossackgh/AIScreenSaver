@@ -254,7 +254,7 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
     console.log('🖼️ [BackgroundSlider] Показываем загрузку...');
     return (
       <View style={styles.defaultBackground}>
-        {/* Градиентный фон по умолчанию */}
+        {/* Черный фон во время загрузки */}
       </View>
     );
   }
@@ -263,7 +263,7 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
     console.warn('🖼️ [BackgroundSlider] Нет изображений, показываем фон по умолчанию');
     return (
       <View style={styles.defaultBackground}>
-        {/* Градиентный фон по умолчанию */}
+        {/* Черный фон по умолчанию */}
       </View>
     );
   }
@@ -274,7 +274,7 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
     console.warn('🖼️ [BackgroundSlider] Текущее изображение некорректно:', currentImage);
     return (
       <View style={styles.defaultBackground}>
-        {/* Градиентный фон по умолчанию */}
+        {/* Черный фон по умолчанию */}
       </View>
     );
   }
@@ -282,22 +282,25 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   console.log('🖼️ [BackgroundSlider] Рендерим изображение:', currentImage.filename, 'URL:', currentImage.url);
 
   return (
-    <Animated.View style={[styles.container, getTransformStyle()]}>
-      <ImageBackground
-        source={{ uri: currentImage.url }}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-        onError={(error) => {
-          console.error('❌ [BackgroundSlider] Ошибка загрузки изображения:', error.nativeEvent?.error);
-          console.error('❌ [BackgroundSlider] Проблемное изображение:', currentImage.url);
-        }}
-        onLoad={() => {
-          console.log('✅ [BackgroundSlider] Изображение успешно загружено:', currentImage.filename);
-        }}
-      >
-        <View style={styles.overlay} />
-      </ImageBackground>
-    </Animated.View>
+    <View style={styles.container}>
+      <Animated.View style={[styles.imageContainer, getTransformStyle()]}>
+        <ImageBackground
+          source={{ uri: currentImage.url }}
+          style={styles.backgroundImage}
+          resizeMode="contain"
+          imageStyle={styles.imageStyle}
+          onError={(error) => {
+            console.error('❌ [BackgroundSlider] Ошибка загрузки изображения:', error.nativeEvent?.error);
+            console.error('❌ [BackgroundSlider] Проблемное изображение:', currentImage.url);
+          }}
+          onLoad={() => {
+            console.log('✅ [BackgroundSlider] Изображение успешно загружено:', currentImage.filename);
+          }}
+        >
+          <View style={styles.overlay} />
+        </ImageBackground>
+      </Animated.View>
+    </View>
   );
 };
 
@@ -308,18 +311,31 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: '#000000', // Черный фон
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  backgroundImage: {
+  imageContainer: {
     width: width,
     height: height,
-    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageStyle: {
+    // Изображение будет вписано по длинной стороне и центрировано
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Легкое затемнение для лучшей читаемости текста
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Минимальное затемнение для читаемости текста
   },
   defaultBackground: {
     flex: 1,
-    backgroundColor: '#1a1a2e', // Темно-синий градиент по умолчанию
+    backgroundColor: '#000000', // Черный фон по умолчанию
   },
 });
