@@ -107,9 +107,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
 
   const selectCity = (index: number) => {
     if (!settings) return;
+    console.log('🏙️ [SettingsScreen] Выбираем город с индексом:', index, 'город:', settings.weatherCities[index]);
     updateSetting('currentCityIndex', index);
-    // Обновляем weatherLocation для совместимости
-    updateSetting('weatherLocation', settings.weatherCities[index]);
   };
 
   const t = (key: keyof typeof translations.en): string => {
@@ -299,7 +298,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
 
         {/* Погода */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('weather')}</Text>
+          <Text style={styles.sectionTitle}>
+            {t('weather')}
+            {settings.weatherEnabled && settings.weatherCities.length > 0 && (
+              <Text style={styles.currentCityIndicator}>
+                {' '}({settings.weatherCities[settings.currentCityIndex] === 'auto' 
+                  ? t('currentLocation') 
+                  : settings.weatherCities[settings.currentCityIndex]})
+              </Text>
+            )}
+          </Text>
           
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>{t('weatherEnabled')}</Text>
@@ -344,8 +352,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
                       styles.cityButtonText,
                       settings.currentCityIndex === index && styles.cityButtonTextActive
                     ]}>
+                      {settings.currentCityIndex === index && '● '}
                       {city === 'auto' ? t('currentLocation') : city}
-                      {settings.currentCityIndex === index && ' ✓'}
                     </Text>
                   </TouchableOpacity>
                   
@@ -611,6 +619,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#444',
     paddingBottom: 5,
+  },
+  currentCityIndicator: {
+    color: '#4a9eff',
+    fontSize: 14,
+    fontWeight: 'normal',
   },
   settingRow: {
     flexDirection: 'row',
