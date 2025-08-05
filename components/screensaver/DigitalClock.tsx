@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { Settings } from '../../types';
 import { formatDate, SupportedLanguage } from '../../utils/localization';
 
@@ -35,7 +35,12 @@ export const DigitalClock: React.FC<DigitalClockProps> = ({ settings }) => {
 
     const timeString = `${hours.toString().padStart(2, '0')}:${minutes}`;
     
-    return { timeString, seconds, ampm };
+    // Проверяем, что все значения корректны
+    return { 
+      timeString: timeString || '00:00', 
+      seconds: seconds || '00', 
+      ampm: ampm || '' 
+    };
   };
 
   const { timeString, seconds, ampm } = getTimeComponents();
@@ -54,7 +59,7 @@ export const DigitalClock: React.FC<DigitalClockProps> = ({ settings }) => {
           {timeString}
         </Text>
         
-        {settings.showSeconds && (
+        {settings.showSeconds && seconds && (
           <Text style={[
             styles.secondsText,
             {
@@ -67,7 +72,7 @@ export const DigitalClock: React.FC<DigitalClockProps> = ({ settings }) => {
           </Text>
         )}
         
-        {ampm && (
+        {ampm && ampm.length > 0 && (
           <Text style={[
             styles.ampmText,
             {
