@@ -1,10 +1,11 @@
+import Constants from 'expo-constants';
 import * as Location from 'expo-location';
-import { WeatherData, ForecastDay } from '../types';
+import { WeatherData } from '../types';
 
-// Используем бесплатный API OpenWeatherMap
+// Получаем API ключ из переменных окружения
 // В реальном приложении API ключ должен храниться в переменных окружения
-const API_KEY = 'demo_key'; // Замените на ваш API ключ
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const _API_KEY = Constants.expoConfig?.extra?.OPENWEATHERMAP_API_KEY || 'demo_key';
+const _BASE_URL = Constants.expoConfig?.extra?.OPENWEATHERMAP_BASE_URL || 'https://api.openweathermap.org/data/2.5';
 
 export const weatherService = {
   async getCurrentLocation(): Promise<{ latitude: number; longitude: number } | null> {
@@ -26,7 +27,7 @@ export const weatherService = {
     }
   },
 
-  async getWeatherByLocation(lat: number, lon: number): Promise<WeatherData | null> {
+  async getWeatherByLocation(_lat: number, _lon: number): Promise<WeatherData | null> {
     try {
       // Для демонстрации используем mock данные
       // В реальном приложении здесь будет запрос к API

@@ -78,6 +78,15 @@ build.bat
    npm install
    ```
 
+3. **Setup Weather API (Optional)**
+   ```bash
+   # Copy environment template
+   cp .env.example .env
+   
+   # Edit .env and add your OpenWeatherMap API key
+   # See WEATHER_API_SETUP.md for detailed instructions
+   ```
+
 3. **Start the development server**
    ```bash
    npx expo start
