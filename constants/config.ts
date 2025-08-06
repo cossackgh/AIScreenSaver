@@ -41,12 +41,6 @@ export const IMAGE_CONFIG = {
       type: 'picsum',
     },
     {
-      name: 'Unsplash Source',
-      url: 'unsplash',
-      description: 'Профессиональные фотографии',
-      type: 'unsplash',
-    },
-    {
       name: 'GitHub репозиторий',
       url: 'https://github.com/username/wallpapers',
       description: 'Ваш собственный репозиторий с изображениями',

@@ -2,10 +2,12 @@ import { Image } from 'react-native';
 import { BackgroundImage } from '../types';
 
 // Поддерживаемые типы репозиториев изображений
-type RepositoryType = 'picsum' | 'unsplash' | 'local' | 'github' | 'custom';
+type RepositoryType = 'picsum' | 'local' | 'github' | 'custom';
 
 export const imageService = {
   async getImagesFromRepository(repositoryUrl: string, count: number = 10): Promise<BackgroundImage[]> {
+    console.log('[WEB DEBUG] Loading images from:', repositoryUrl, 'Platform:', typeof window !== 'undefined' ? 'WEB' : 'NATIVE');
+    
     try {
       const repositoryType = this.detectRepositoryType(repositoryUrl);
       
@@ -15,11 +17,13 @@ export const imageService = {
         case 'picsum':
           images = await this.getImagesFromPicsum(count);
           break;
-        case 'unsplash':
-          images = await this.getImagesFromUnsplash(repositoryUrl, count);
-          break;
         case 'github':
           images = await this.getImagesFromGitHub(repositoryUrl, count);
+          // Если GitHub не вернул изображения в веб-версии, используем Picsum
+          if (images.length === 0 && typeof window !== 'undefined') {
+            console.warn('[WEB DEBUG] GitHub failed in web, falling back to Picsum');
+            images = await this.getImagesFromPicsum(count);
+          }
           break;
         case 'local':
           images = await this.getImagesFromLocal(repositoryUrl, count);
@@ -32,9 +36,10 @@ export const imageService = {
           images = await this.getImagesFromPicsum(count); // Fallback to Picsum
       }
       
+      console.log('[WEB DEBUG] Images loaded:', images.length);
       return images;
     } catch (error) {
-      console.error('Error loading images:', error);
+      console.error('[WEB DEBUG] Error loading images:', error);
       const fallbackImages = await this.getImagesFromPicsum(count); // Fallback
       return fallbackImages;
     }
@@ -45,9 +50,6 @@ export const imageService = {
     
     if (url.includes('picsum.photos') || url === 'picsum' || url === 'https://picsum.photos') {
       return 'picsum';
-    }
-    if (url.includes('unsplash.com') || url.includes('unsplash')) {
-      return 'unsplash';
     }
     if (url.includes('github.com') || url.includes('raw.githubusercontent.com')) {
       return 'github';
@@ -80,32 +82,6 @@ export const imageService = {
       return images;
     } catch (error) {
       console.error('Error fetching Picsum images:', error);
-      return [];
-    }
-  },
-
-  async getImagesFromUnsplash(repositoryUrl: string, count: number): Promise<BackgroundImage[]> {
-    try {
-      const images: BackgroundImage[] = [];
-      
-      // Для демонстрации используем Unsplash Source API
-      // В реальном приложении лучше использовать официальный Unsplash API с ключом
-      const topics = ['nature', 'landscape', 'space', 'abstract', 'architecture'];
-      
-      for (let i = 0; i < count; i++) {
-        const topic = topics[Math.floor(Math.random() * topics.length)];
-        const url = `https://source.unsplash.com/1920x1080/?${topic}&sig=${Date.now() + i}`;
-        
-        images.push({
-          url,
-          filename: `unsplash_${topic}_${i}.jpg`,
-          loaded: false,
-        });
-      }
-      
-      return images;
-    } catch (error) {
-      console.error('Error fetching Unsplash images:', error);
       return [];
     }
   },
@@ -153,15 +129,18 @@ export const imageService = {
       
       console.log('🐙 [GitHub] API URL:', apiUrl);
       
-      // Получаем список файлов из репозитория с дополнительными заголовками для Android
+      // Получаем список файлов из репозитория
       const response = await fetch(apiUrl, {
         method: 'GET',
-        headers: {
+        headers: typeof window !== 'undefined' ? {
+          // Веб-версия: только базовые заголовки чтобы избежать CORS проблем
+          'Accept': 'application/vnd.github.v3+json'
+        } : {
+          // React Native: полный набор заголовков
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'AIScreenSaver/1.0',
           'Cache-Control': 'no-cache'
-        },
-        cache: 'no-cache'
+        }
       });
       console.log('🐙 [GitHub] API Response Status:', response.status);
       console.log('🐙 [GitHub] API Response Headers:', JSON.stringify(Object.fromEntries(response.headers.entries())));
@@ -223,19 +202,28 @@ export const imageService = {
       console.error('❌ [GitHub] Ошибка загрузки GitHub изображений:', error);
       console.error('❌ [GitHub] Error name:', error instanceof Error ? error.name : 'Unknown');
       console.error('❌ [GitHub] Error message:', error instanceof Error ? error.message : String(error));
+      
+      // В веб-версии при CORS ошибках используем fallback к Picsum
+      if (typeof window !== 'undefined' && error instanceof Error && error.message.includes('Failed to fetch')) {
+        console.warn('🌐 [GitHub] CORS блокирует GitHub API в веб-версии, используем Picsum fallback');
+        return this.getImagesFromPicsum(count);
+      }
+      
       console.error('❌ [GitHub] Error stack:', error instanceof Error ? error.stack : 'No stack');
       
-      // Проверяем доступность сети
-      try {
-        console.log('🌐 [GitHub] Проверяем доступность интернета...');
-        const testResponse = await fetch('https://httpbin.org/get', { 
-          method: 'GET',
-          cache: 'no-cache',
-          headers: { 'Cache-Control': 'no-cache' }
-        });
-        console.log('🌐 [GitHub] Тест сети:', testResponse.ok ? 'OK' : 'FAILED');
-      } catch (networkError) {
-        console.error('🌐 [GitHub] Нет доступа к интернету:', networkError);
+      // Проверяем доступность сети (только для React Native)
+      if (typeof window === 'undefined') {
+        try {
+          console.log('🌐 [GitHub] Проверяем доступность интернета...');
+          const testResponse = await fetch('https://httpbin.org/get', { 
+            method: 'GET',
+            cache: 'no-cache',
+            headers: { 'Cache-Control': 'no-cache' }
+          });
+          console.log('🌐 [GitHub] Тест сети:', testResponse.ok ? 'OK' : 'FAILED');
+        } catch (networkError) {
+          console.error('🌐 [GitHub] Нет доступа к интернету:', networkError);
+        }
       }
       
       return [];
@@ -315,14 +303,22 @@ export const imageService = {
   },
 
   async preloadImage(url: string): Promise<boolean> {
+    console.log('[WEB DEBUG] Preloading:', url);
+    
     try {
       // Сначала проверяем веб-платформу
       if (typeof window !== 'undefined' && window.Image) {
         // Web browser Image
         return new Promise((resolve) => {
           const image = new window.Image();
-          image.onload = () => resolve(true);
-          image.onerror = () => resolve(false);
+          image.onload = () => {
+            console.log('[WEB DEBUG] Image loaded successfully:', url);
+            resolve(true);
+          };
+          image.onerror = () => {
+            console.error('[WEB DEBUG] Image failed to load:', url);
+            resolve(false);
+          };
           image.src = url;
         });
       } else if (Image && Image.prefetch) {
@@ -338,7 +334,7 @@ export const imageService = {
         return response.ok;
       }
     } catch (error) {
-      console.error('Error preloading image:', error);
+      console.error('[WEB DEBUG] Error preloading image:', error);
       return false;
     }
   },
