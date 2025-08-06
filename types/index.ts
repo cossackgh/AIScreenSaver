@@ -8,8 +8,9 @@ export interface WeatherData {
 
 export interface ForecastDay {
   date: string;
-  temp_max: number;
-  temp_min: number;
+  temp_max: number; // дневная температура
+  temp_min: number; // минимальная температура за день
+  temp_night: number; // ночная температура
   description: string;
   icon: string;
 }

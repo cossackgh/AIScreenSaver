@@ -29,6 +29,7 @@ function getMockWeatherData(location: string): WeatherData {
         date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
         temp_max: Math.round(Math.random() * 25 + 10),
         temp_min: Math.round(Math.random() * 15 + 5),
+        temp_night: Math.round(Math.random() * 10 + 8),
         description: 'Sunny',
         icon: '01d',
       },
@@ -36,6 +37,7 @@ function getMockWeatherData(location: string): WeatherData {
         date: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
         temp_max: Math.round(Math.random() * 25 + 10),
         temp_min: Math.round(Math.random() * 15 + 5),
+        temp_night: Math.round(Math.random() * 10 + 8),
         description: 'Rainy',
         icon: '09d',
       },
@@ -43,6 +45,7 @@ function getMockWeatherData(location: string): WeatherData {
         date: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
         temp_max: Math.round(Math.random() * 25 + 10),
         temp_min: Math.round(Math.random() * 15 + 5),
+        temp_night: Math.round(Math.random() * 10 + 8),
         description: 'Cloudy',
         icon: '03d',
       },
@@ -50,6 +53,7 @@ function getMockWeatherData(location: string): WeatherData {
         date: new Date(Date.now() + 4 * 86400000).toISOString().split('T')[0],
         temp_max: Math.round(Math.random() * 25 + 10),
         temp_min: Math.round(Math.random() * 15 + 5),
+        temp_night: Math.round(Math.random() * 10 + 8),
         description: 'Thunderstorm',
         icon: '11d',
       },
@@ -57,6 +61,7 @@ function getMockWeatherData(location: string): WeatherData {
         date: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
         temp_max: Math.round(Math.random() * 25 + 10),
         temp_min: Math.round(Math.random() * 15 + 5),
+        temp_night: Math.round(Math.random() * 10 + 8),
         description: 'Clear',
         icon: '01d',
       },
@@ -113,21 +118,51 @@ export const weatherService = {
       }
       const forecastData: OpenWeatherMapForecast = await forecastResponse.json();
 
-      // Обрабатываем данные прогноза - берем один прогноз на день (в полдень)
-      const dailyForecasts = forecastData.list.filter((_, index) => index % 8 === 0).slice(0, 5);
+      // Обрабатываем данные прогноза - группируем по дням и извлекаем дневную и ночную температуру
+      const groupedForecasts = forecastData.list.reduce((acc: { [key: string]: any[] }, item) => {
+        const date = new Date(item.dt * 1000).toISOString().split('T')[0];
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(item);
+        return acc;
+      }, {});
+
+      const dailyForecasts = Object.entries(groupedForecasts).slice(0, 5).map(([date, dayItems]) => {
+        // Находим дневную температуру (12:00-15:00)
+        const dayTemp = dayItems.find(item => {
+          const hour = new Date(item.dt * 1000).getHours();
+          return hour >= 12 && hour <= 15;
+        });
+        
+        // Находим ночную температуру (00:00-06:00 или 21:00-23:59)
+        const nightTemp = dayItems.find(item => {
+          const hour = new Date(item.dt * 1000).getHours();
+          return (hour >= 0 && hour <= 6) || (hour >= 21 && hour <= 23);
+        });
+
+        // Находим максимальную и минимальную температуру за день
+        const temps = dayItems.map(item => item.main.temp);
+        const maxTemp = Math.max(...temps);
+        const minTemp = Math.min(...temps);
+
+        // Используем первый элемент дня для иконки и описания
+        const representative = dayItems[Math.floor(dayItems.length / 2)];
+
+        return {
+          date,
+          temp_max: Math.round(dayTemp?.main.temp || maxTemp),
+          temp_min: Math.round(minTemp),
+          temp_night: Math.round(nightTemp?.main.temp || minTemp),
+          description: representative.weather[0].description,
+          icon: representative.weather[0].icon,
+        };
+      });
 
       const weatherData: WeatherData = {
         location: currentData.name || 'Current Location',
         temperature: Math.round(currentData.main.temp),
         description: currentData.weather[0].description,
         icon: currentData.weather[0].icon,
-        forecast: dailyForecasts.map((item) => ({
-          date: new Date(item.dt * 1000).toISOString().split('T')[0],
-          temp_max: Math.round(item.main.temp_max),
-          temp_min: Math.round(item.main.temp_min),
-          description: item.weather[0].description,
-          icon: item.weather[0].icon,
-        })),
+        forecast: dailyForecasts,
       };
 
       console.log('✅ [weatherService] Реальные данные погоды получены:', weatherData);
@@ -168,21 +203,51 @@ export const weatherService = {
       }
       const forecastData: OpenWeatherMapForecast = await forecastResponse.json();
 
-      // Обрабатываем данные прогноза - берем один прогноз на день (в полдень)
-      const dailyForecasts = forecastData.list.filter((_, index) => index % 8 === 0).slice(0, 5);
+      // Обрабатываем данные прогноза - группируем по дням и извлекаем дневную и ночную температуру
+      const groupedForecasts = forecastData.list.reduce((acc: { [key: string]: any[] }, item) => {
+        const date = new Date(item.dt * 1000).toISOString().split('T')[0];
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(item);
+        return acc;
+      }, {});
+
+      const dailyForecasts = Object.entries(groupedForecasts).slice(0, 5).map(([date, dayItems]) => {
+        // Находим дневную температуру (12:00-15:00)
+        const dayTemp = dayItems.find(item => {
+          const hour = new Date(item.dt * 1000).getHours();
+          return hour >= 12 && hour <= 15;
+        });
+        
+        // Находим ночную температуру (00:00-06:00 или 21:00-23:59)
+        const nightTemp = dayItems.find(item => {
+          const hour = new Date(item.dt * 1000).getHours();
+          return (hour >= 0 && hour <= 6) || (hour >= 21 && hour <= 23);
+        });
+
+        // Находим максимальную и минимальную температуру за день
+        const temps = dayItems.map(item => item.main.temp);
+        const maxTemp = Math.max(...temps);
+        const minTemp = Math.min(...temps);
+
+        // Используем первый элемент дня для иконки и описания
+        const representative = dayItems[Math.floor(dayItems.length / 2)];
+
+        return {
+          date,
+          temp_max: Math.round(dayTemp?.main.temp || maxTemp),
+          temp_min: Math.round(minTemp),
+          temp_night: Math.round(nightTemp?.main.temp || minTemp),
+          description: representative.weather[0].description,
+          icon: representative.weather[0].icon,
+        };
+      });
 
       const weatherData: WeatherData = {
         location: currentData.name || city,
         temperature: Math.round(currentData.main.temp),
         description: currentData.weather[0].description,
         icon: currentData.weather[0].icon,
-        forecast: dailyForecasts.map((item) => ({
-          date: new Date(item.dt * 1000).toISOString().split('T')[0],
-          temp_max: Math.round(item.main.temp_max),
-          temp_min: Math.round(item.main.temp_min),
-          description: item.weather[0].description,
-          icon: item.weather[0].icon,
-        })),
+        forecast: dailyForecasts,
       };
 
       console.log('✅ [weatherService] Реальные данные погоды для города получены:', weatherData);

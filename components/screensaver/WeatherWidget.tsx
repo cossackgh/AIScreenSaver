@@ -1,14 +1,15 @@
+import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { weatherService } from '../../services/weatherService';
 import { Settings, WeatherData } from '../../types';
 import {
-    convertTemperature,
-    formatDayOfWeek,
-    formatLocationName,
-    formatTemperature,
-    getTranslation,
-    translateWeatherDescription
+  convertTemperature,
+  formatDayOfWeek,
+  formatLocationName,
+  formatTemperature,
+  getTranslation,
+  translateWeatherDescription
 } from '../../utils/localization';
 import { WeatherIcon } from './WeatherIcon';
 
@@ -145,16 +146,27 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
               <View key={index} style={styles.forecastDay}>
                 <Text style={styles.forecastDayText}>{formatDate(day.date)}</Text>
                 <WeatherIcon iconCode={day.icon} size={24} color="white" />
-                <Text style={styles.forecastTemp}>
-                  {formatTemperature(
-                    convertTemperature(day.temp_max || 0, 'celsius', settings.temperatureUnit),
-                    settings.temperatureUnit
-                  )}/
-                  {formatTemperature(
-                    convertTemperature(day.temp_min || 0, 'celsius', settings.temperatureUnit),
-                    settings.temperatureUnit
-                  )}
-                </Text>
+                <View style={styles.temperatureRow}>
+                  <View style={styles.tempItem}>
+                    <Feather name="sun" size={10} color="rgba(255, 215, 0, 0.8)" />
+                    <Text style={styles.forecastTemp}>
+                      {formatTemperature(
+                        convertTemperature(day.temp_max || 0, 'celsius', settings.temperatureUnit),
+                        settings.temperatureUnit
+                      )}°
+                    </Text>
+                  </View>
+                  <Text style={styles.temperatureSeparator}>/</Text>
+                  <View style={styles.tempItem}>
+                    <Feather name="moon" size={10} color="rgba(173, 216, 230, 0.8)" />
+                    <Text style={styles.forecastTemp}>
+                      {formatTemperature(
+                        convertTemperature(day.temp_night || 0, 'celsius', settings.temperatureUnit),
+                        settings.temperatureUnit
+                      )}°
+                    </Text>
+                  </View>
+                </View>
               </View>
             ))}
           </ScrollView>
@@ -250,5 +262,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     textAlign: 'center',
+  },
+  temperatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  tempItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  temperatureSeparator: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 12,
+    marginHorizontal: 4,
   },
 });
