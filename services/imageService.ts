@@ -6,12 +6,8 @@ type RepositoryType = 'picsum' | 'unsplash' | 'local' | 'github' | 'custom';
 
 export const imageService = {
   async getImagesFromRepository(repositoryUrl: string, count: number = 10): Promise<BackgroundImage[]> {
-    console.log('🖼️ [ImageService] Загрузка изображений из:', repositoryUrl);
-    console.log('🖼️ [ImageService] Количество изображений:', count);
-    
     try {
       const repositoryType = this.detectRepositoryType(repositoryUrl);
-      console.log('🖼️ [ImageService] Тип репозитория:', repositoryType);
       
       let images: BackgroundImage[] = [];
       
@@ -36,14 +32,10 @@ export const imageService = {
           images = await this.getImagesFromPicsum(count); // Fallback to Picsum
       }
       
-      console.log('🖼️ [ImageService] Загружено изображений:', images.length);
-      console.log('🖼️ [ImageService] Список изображений:', images.map(img => ({ url: img.url, filename: img.filename })));
-      
       return images;
     } catch (error) {
-      console.error('❌ [ImageService] Ошибка загрузки изображений:', error);
+      console.error('Error loading images:', error);
       const fallbackImages = await this.getImagesFromPicsum(count); // Fallback
-      console.log('🖼️ [ImageService] Используем Picsum fallback, изображений:', fallbackImages.length);
       return fallbackImages;
     }
   },
@@ -323,43 +315,30 @@ export const imageService = {
   },
 
   async preloadImage(url: string): Promise<boolean> {
-    console.log('🖼️ [preloadImage] Предзагрузка:', url);
-    
     try {
-      // В React Native используем Image.prefetch
-      if (Image && Image.prefetch) {
-        console.log('🖼️ [preloadImage] Используем React Native Image.prefetch');
-        const result = await Image.prefetch(url);
-        console.log('🖼️ [preloadImage] React Native prefetch результат:', result);
-        return result;
-      } else if (typeof window !== 'undefined' && window.Image) {
+      // Сначала проверяем веб-платформу
+      if (typeof window !== 'undefined' && window.Image) {
         // Web browser Image
-        console.log('🖼️ [preloadImage] Используем Web Image');
         return new Promise((resolve) => {
           const image = new window.Image();
-          image.onload = () => {
-            console.log('🖼️ [preloadImage] Web image загружено:', url);
-            resolve(true);
-          };
-          image.onerror = (error) => {
-            console.error('🖼️ [preloadImage] Web image ошибка:', error);
-            resolve(false);
-          };
+          image.onload = () => resolve(true);
+          image.onerror = () => resolve(false);
           image.src = url;
         });
+      } else if (Image && Image.prefetch) {
+        // React Native Image.prefetch
+        const result = await Image.prefetch(url);
+        return result;
       } else {
         // Fallback - просто проверяем доступность URL
-        console.log('🖼️ [preloadImage] Fallback проверка URL:', url);
         const response = await fetch(url, { 
           method: 'HEAD',
           cache: 'no-cache'
         });
-        const success = response.ok;
-        console.log('🖼️ [preloadImage] HEAD запрос результат:', success);
-        return success;
+        return response.ok;
       }
     } catch (error) {
-      console.error('🖼️ [preloadImage] Ошибка предзагрузки:', error);
+      console.error('Error preloading image:', error);
       return false;
     }
   },
