@@ -142,7 +142,12 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
           <Text style={styles.forecastTitle}>
             {getTranslation(settings.language as any, 'forecast')}
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={{ maxHeight: 100 }} // Ограничиваем высоту ScrollView
+            contentContainerStyle={{ alignItems: 'flex-start' }} // Выравниваем содержимое по верху
+          >
             {weatherData.forecast.slice(0, settings.forecastDays).map((day, index) => (
               <View key={index} style={styles.forecastDay}>
                 <Text style={styles.forecastDayText}>{formatDate(day.date)}</Text>
@@ -184,6 +189,8 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 20,
     minWidth: 300,
+    maxHeight: 400, // Ограничиваем максимальную высоту
+    alignSelf: 'flex-start', // Не растягиваемся на всю высоту родителя
   },
   loadingText: {
     color: 'white',
@@ -237,6 +244,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.2)',
     paddingTop: 15,
+    maxHeight: 120, // Ограничиваем высоту контейнера прогноза
+    overflow: 'hidden', // Скрываем переполнение
   },
   forecastTitle: {
     color: 'white',
@@ -251,6 +260,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
     minWidth: 60,
+    maxWidth: 80, // Ограничиваем максимальную ширину
+    paddingVertical: 5, // Добавляем вертикальные отступы
   },
   forecastDayText: {
     color: 'rgba(255, 255, 255, 0.8)',
