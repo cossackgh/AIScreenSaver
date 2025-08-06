@@ -44,14 +44,15 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
           console.log('🌤️ [WeatherWidget] Местоположение получено:', location);
           weather = await weatherService.getWeatherByLocation(
             location.latitude, 
-            location.longitude
+            location.longitude,
+            settings.weatherApiKey
           );
         } else {
           console.warn('🌤️ [WeatherWidget] Не удалось получить местоположение');
         }
       } else {
         console.log('🌤️ [WeatherWidget] Получаем погоду для города:', currentCity);
-        weather = await weatherService.getWeatherByCity(currentCity);
+        weather = await weatherService.getWeatherByCity(currentCity, settings.weatherApiKey);
       }
 
       console.log('🌤️ [WeatherWidget] Данные погоды получены:', weather);
@@ -63,7 +64,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
       setLoading(false);
       console.log('🌤️ [WeatherWidget] Загрузка погоды завершена');
     }
-  }, [settings.weatherEnabled, settings.weatherCities, settings.currentCityIndex, settings.weatherLocation]);
+  }, [settings.weatherEnabled, settings.weatherCities, settings.currentCityIndex, settings.weatherLocation, settings.weatherApiKey]);
 
   useEffect(() => {
     loadWeatherData();

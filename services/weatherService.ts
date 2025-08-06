@@ -2,11 +2,11 @@ import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import { OpenWeatherMapForecast, OpenWeatherMapResponse, WeatherData } from '../types';
 
-// Получаем API ключ из переменных окружения
-const API_KEY = Constants.expoConfig?.extra?.OPENWEATHERMAP_API_KEY || 'demo_key';
+// Получаем API ключ из переменных окружения (fallback)
+const FALLBACK_API_KEY = Constants.expoConfig?.extra?.OPENWEATHERMAP_API_KEY || '';
 const BASE_URL = Constants.expoConfig?.extra?.OPENWEATHERMAP_BASE_URL || 'https://api.openweathermap.org/data/2.5';
 
-console.log('🔑 [weatherService] API Key:', API_KEY ? `${API_KEY.substring(0, 8)}...` : 'not found');
+console.log('🔑 [weatherService] Fallback API Key:', FALLBACK_API_KEY ? `${FALLBACK_API_KEY.substring(0, 8)}...` : 'not found');
 console.log('🌐 [weatherService] Base URL:', BASE_URL);
 
 // Функция для генерации mock данных в случае отсутствия API ключа или ошибки
@@ -89,11 +89,13 @@ export const weatherService = {
     }
   },
 
-  async getWeatherByLocation(lat: number, lon: number): Promise<WeatherData | null> {
+  async getWeatherByLocation(lat: number, lon: number, apiKey?: string): Promise<WeatherData | null> {
     try {
       console.log('🌤️ [weatherService] Получаем погоду по координатам:', lat, lon);
       
-      if (API_KEY === 'demo_key' || !API_KEY) {
+      const API_KEY = apiKey || FALLBACK_API_KEY;
+      
+      if (!API_KEY || API_KEY.trim() === '') {
         console.warn('⚠️ [weatherService] Используются mock данные - API ключ не настроен');
         return getMockWeatherData('Current Location');
       }
@@ -174,11 +176,13 @@ export const weatherService = {
     }
   },
 
-  async getWeatherByCity(city: string): Promise<WeatherData | null> {
+  async getWeatherByCity(city: string, apiKey?: string): Promise<WeatherData | null> {
     try {
       console.log('🏙️ [weatherService] Получаем погоду для города:', city);
       
-      if (API_KEY === 'demo_key' || !API_KEY) {
+      const API_KEY = apiKey || FALLBACK_API_KEY;
+      
+      if (!API_KEY || API_KEY.trim() === '') {
         console.warn('⚠️ [weatherService] Используются mock данные - API ключ не настроен');
         return getMockWeatherData(city);
       }

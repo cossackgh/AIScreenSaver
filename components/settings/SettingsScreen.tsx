@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -130,6 +131,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
   const t = (key: keyof typeof translations.en): string => {
     if (!settings) return key;
     return getTranslation(settings.language as SupportedLanguage, key);
+  };
+
+  const openWeatherMapUrl = async () => {
+    try {
+      await Linking.openURL('https://openweathermap.org/api');
+    } catch (error) {
+      console.error('Failed to open URL:', error);
+      Alert.alert('Error', 'Could not open OpenWeatherMap website');
+    }
   };
 
   if (loading || !settings) {
@@ -334,6 +344,36 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
               thumbColor={settings.weatherEnabled ? '#f5dd4b' : '#f4f3f4'}
             />
           </View>
+
+          {/* API ключ OpenWeatherMap */}
+          {settings.weatherEnabled && (
+            <>
+              <View style={styles.settingRow}>
+                <Text style={styles.settingLabel}>{t('weatherApiKey')}</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={settings.weatherApiKey}
+                  onChangeText={(text) => updateSetting('weatherApiKey', text)}
+                  placeholder="Enter your OpenWeatherMap API key"
+                  placeholderTextColor="#999"
+                  secureTextEntry={false}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+              <View style={styles.hintRow}>
+                <Text style={styles.hintText}>
+                  {settings.language === 'ru' ? 'Получите бесплатный API ключ на ' : 'Get your free API key at '}
+                  <Text 
+                    style={styles.linkText} 
+                    onPress={openWeatherMapUrl}
+                  >
+                    openweathermap.org
+                  </Text>
+                </Text>
+              </View>
+            </>
+          )}
 
           {/* Управление городами */}
           {settings.weatherEnabled && (
@@ -875,5 +915,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  hintRow: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  hintText: {
+    color: '#888',
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  linkText: {
+    color: '#4a9eff',
+    fontSize: 12,
+    fontStyle: 'italic',
+    textDecorationLine: 'underline',
   },
 });

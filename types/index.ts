@@ -68,6 +68,7 @@ export interface Settings {
   // Погода
   weatherEnabled: boolean;
   weatherLocation: string;
+  weatherApiKey: string; // API ключ OpenWeatherMap
   weatherCities: string[]; // Список сохраненных городов (до 5)
   currentCityIndex: number; // Индекс текущего выбранного города
   showForecast: boolean;

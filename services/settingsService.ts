@@ -21,6 +21,7 @@ function createDefaultSettings(): Settings {
     
     weatherEnabled: true,
     weatherLocation: 'auto',
+    weatherApiKey: '', // Пустой API ключ по умолчанию
     weatherCities: ['auto'], // По умолчанию только автоопределение
     currentCityIndex: 0, // Индекс текущего города (auto)
     showForecast: true,
