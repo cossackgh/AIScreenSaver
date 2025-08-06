@@ -287,7 +287,7 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
         <ImageBackground
           source={{ uri: currentImage.url }}
           style={styles.backgroundImage}
-          resizeMode="contain"
+          resizeMode="cover"
           imageStyle={styles.imageStyle}
           onError={(error) => {
             console.error('❌ [BackgroundSlider] Ошибка загрузки изображения:', error.nativeEvent?.error);
@@ -312,23 +312,18 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#000000', // Черный фон
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   imageContainer: {
     width: width,
     height: height,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   backgroundImage: {
     width: '100%',
     height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1,
   },
   imageStyle: {
-    // Изображение будет вписано по длинной стороне и центрировано
+    // Изображение заполнит весь экран с центрированием
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
