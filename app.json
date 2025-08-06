@@ -3,13 +3,14 @@
     "name": "aiscreensaver",
     "slug": "aiscreensaver",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "aiscreensaver",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "requireFullScreen": false
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +18,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.aiscreensaver"
+      "package": "com.anonymous.aiscreensaver",
+      "screenOrientation": "default"
     },
     "web": {
       "bundler": "metro",
@@ -44,7 +46,9 @@
       "router": {},
       "eas": {
         "projectId": "2c96446a-f43d-4569-b8f7-41b4f7dc9dbd"
-      }
+      },
+      "OPENWEATHERMAP_API_KEY": "b4f7c47359cd4afeb26675b489bd4385",
+      "OPENWEATHERMAP_BASE_URL": "https://api.openweathermap.org/data/2.5"
     }
   }
 }
