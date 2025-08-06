@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  Linking,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Linking,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { settingsService } from '../../services/settingsService';
 import { Settings } from '../../types';
 import { keepAwakeUtils } from '../../utils/keepAwakeUtils';
 import {
-  SUPPORTED_LANGUAGES,
-  SupportedLanguage,
-  getTranslation,
-  translations
+    SUPPORTED_LANGUAGES,
+    SupportedLanguage,
+    getTranslation,
+    translations
 } from '../../utils/localization';
 
 interface SettingsScreenProps {
@@ -238,7 +238,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>{t('clockFontSize')} ({settings.clockFontSize}px)</Text>
             <View style={styles.sliderContainer}>
-              {[200, 250, 300, 350, 400].map((size) => (
+              {[100, 150, 200, 250, 300, 350, 400].map((size) => (
                 <TouchableOpacity
                   key={size}
                   style={[
