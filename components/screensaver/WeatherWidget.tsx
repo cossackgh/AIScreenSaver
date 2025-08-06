@@ -3,13 +3,14 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { weatherService } from '../../services/weatherService';
 import { Settings, WeatherData } from '../../types';
 import {
-  convertTemperature,
-  formatDayOfWeek,
-  formatLocationName,
-  formatTemperature,
-  getTranslation,
-  translateWeatherDescription
+    convertTemperature,
+    formatDayOfWeek,
+    formatLocationName,
+    formatTemperature,
+    getTranslation,
+    translateWeatherDescription
 } from '../../utils/localization';
+import { WeatherIcon } from './WeatherIcon';
 
 interface WeatherWidgetProps {
   settings: Settings;
@@ -72,32 +73,6 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
     return () => clearInterval(weatherInterval);
   }, [loadWeatherData]);
 
-  const getWeatherIcon = (iconCode: string): string => {
-    // Простые emoji иконки для демонстрации
-    const iconMap: { [key: string]: string } = {
-      '01d': '☀️', // clear sky day
-      '01n': '🌙', // clear sky night
-      '02d': '⛅', // few clouds day
-      '02n': '☁️', // few clouds night
-      '03d': '☁️', // scattered clouds
-      '03n': '☁️',
-      '04d': '☁️', // broken clouds
-      '04n': '☁️',
-      '09d': '🌧️', // shower rain
-      '09n': '🌧️',
-      '10d': '🌦️', // rain day
-      '10n': '🌧️', // rain night
-      '11d': '⛈️', // thunderstorm
-      '11n': '⛈️',
-      '13d': '❄️', // snow
-      '13n': '❄️',
-      '50d': '🌫️', // mist
-      '50n': '🌫️',
-    };
-    
-    return iconMap[iconCode] || '☀️';
-  };
-
   const formatDate = (dateString: string): string => {
     return formatDayOfWeek(dateString, settings.language as any);
   };
@@ -144,9 +119,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
         </View>
         
         <View style={styles.currentWeatherContent}>
-          <Text style={styles.weatherIcon}>
-            {getWeatherIcon(weatherData.icon)}
-          </Text>
+          <WeatherIcon iconCode={weatherData.icon} size={60} color="white" />
           <View style={styles.temperatureContainer}>
             <Text style={styles.temperatureText}>
               {formatTemperature(
@@ -171,7 +144,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ settings }) => {
             {weatherData.forecast.slice(0, settings.forecastDays).map((day, index) => (
               <View key={index} style={styles.forecastDay}>
                 <Text style={styles.forecastDayText}>{formatDate(day.date)}</Text>
-                <Text style={styles.forecastIcon}>{getWeatherIcon(day.icon)}</Text>
+                <WeatherIcon iconCode={day.icon} size={24} color="white" />
                 <Text style={styles.forecastTemp}>
                   {formatTemperature(
                     convertTemperature(day.temp_max || 0, 'celsius', settings.temperatureUnit),
@@ -227,10 +200,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  weatherIcon: {
-    fontSize: 60,
-    marginRight: 20,
-  },
   temperatureContainer: {
     flex: 1,
   },
@@ -274,10 +243,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     fontSize: 12,
     fontWeight: '400',
-    marginBottom: 5,
-  },
-  forecastIcon: {
-    fontSize: 24,
     marginBottom: 5,
   },
   forecastTemp: {
