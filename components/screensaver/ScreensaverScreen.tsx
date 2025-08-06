@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Pressable, StatusBar } from 'react-native';
-import { Settings } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { settingsService } from '../../services/settingsService';
+import { Settings } from '../../types';
 import { keepAwakeUtils } from '../../utils/keepAwakeUtils';
 import { BackgroundSlider } from './BackgroundSlider';
 import { DigitalClock } from './DigitalClock';
@@ -14,9 +14,16 @@ interface ScreensaverScreenProps {
 export const ScreensaverScreen: React.FC<ScreensaverScreenProps> = ({ onSettingsPress }) => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
   useEffect(() => {
     loadSettings();
+    
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setDimensions(window);
+    });
+
+    return () => subscription?.remove();
   }, []);
 
   useEffect(() => {
@@ -43,6 +50,9 @@ export const ScreensaverScreen: React.FC<ScreensaverScreenProps> = ({ onSettings
     }
   };
 
+  // Определяем ориентацию экрана
+  const isLandscape = dimensions.width > dimensions.height;
+
   if (loading || !settings) {
     return (
       <View style={styles.loadingContainer}>
@@ -59,7 +69,10 @@ export const ScreensaverScreen: React.FC<ScreensaverScreenProps> = ({ onSettings
       <BackgroundSlider settings={settings} />
       
       {/* Основной контент */}
-      <View style={styles.contentContainer}>
+      <View style={[
+        styles.contentContainer, 
+        isLandscape ? styles.contentLandscape : styles.contentPortrait
+      ]}>
         {/* Левая часть - Часы */}
         <View style={styles.clockContainer}>
           <DigitalClock settings={settings} />
@@ -87,9 +100,16 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    flexDirection: 'row',
     paddingHorizontal: 40,
     paddingVertical: 60,
+  },
+  contentLandscape: {
+    flexDirection: 'row',
+  },
+  contentPortrait: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   clockContainer: {
     flex: 1,

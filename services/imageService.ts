@@ -1,3 +1,4 @@
+import { Image } from 'react-native';
 import { BackgroundImage } from '../types';
 
 // Поддерживаемые типы репозиториев изображений
@@ -160,9 +161,18 @@ export const imageService = {
       
       console.log('🐙 [GitHub] API URL:', apiUrl);
       
-      // Получаем список файлов из репозитория
-      const response = await fetch(apiUrl);
+      // Получаем список файлов из репозитория с дополнительными заголовками для Android
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'AIScreenSaver/1.0',
+          'Cache-Control': 'no-cache'
+        },
+        cache: 'no-cache'
+      });
       console.log('🐙 [GitHub] API Response Status:', response.status);
+      console.log('🐙 [GitHub] API Response Headers:', JSON.stringify(Object.fromEntries(response.headers.entries())));
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -171,8 +181,16 @@ export const imageService = {
       }
       
       const files = await response.json();
-      console.log('🐙 [GitHub] Files received:', files.length);
-      console.log('🐙 [GitHub] File types:', files.map((f: any) => ({ name: f.name, type: f.type })));
+      console.log('🐙 [GitHub] Raw response type:', typeof files);
+      console.log('🐙 [GitHub] Raw response preview:', JSON.stringify(files).substring(0, 200) + '...');
+      console.log('🐙 [GitHub] Files received count:', Array.isArray(files) ? files.length : 'not array');
+      
+      if (Array.isArray(files)) {
+        console.log('🐙 [GitHub] File types:', files.map((f: any) => ({ name: f.name, type: f.type, download_url: f.download_url ? 'present' : 'missing' })));
+      } else {
+        console.error('🐙 [GitHub] Response is not an array:', files);
+        throw new Error('GitHub API returned non-array response');
+      }
       
       // Фильтруем только файлы изображений
       const imageFiles = files.filter((file: any) => {
@@ -211,6 +229,23 @@ export const imageService = {
       return images;
     } catch (error) {
       console.error('❌ [GitHub] Ошибка загрузки GitHub изображений:', error);
+      console.error('❌ [GitHub] Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.error('❌ [GitHub] Error message:', error instanceof Error ? error.message : String(error));
+      console.error('❌ [GitHub] Error stack:', error instanceof Error ? error.stack : 'No stack');
+      
+      // Проверяем доступность сети
+      try {
+        console.log('🌐 [GitHub] Проверяем доступность интернета...');
+        const testResponse = await fetch('https://httpbin.org/get', { 
+          method: 'GET',
+          cache: 'no-cache',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+        console.log('🌐 [GitHub] Тест сети:', testResponse.ok ? 'OK' : 'FAILED');
+      } catch (networkError) {
+        console.error('🌐 [GitHub] Нет доступа к интернету:', networkError);
+      }
+      
       return [];
     }
   },
@@ -288,12 +323,45 @@ export const imageService = {
   },
 
   async preloadImage(url: string): Promise<boolean> {
-    return new Promise((resolve) => {
-      const image = new Image();
-      image.onload = () => resolve(true);
-      image.onerror = () => resolve(false);
-      image.src = url;
-    });
+    console.log('🖼️ [preloadImage] Предзагрузка:', url);
+    
+    try {
+      // В React Native используем Image.prefetch
+      if (Image && Image.prefetch) {
+        console.log('🖼️ [preloadImage] Используем React Native Image.prefetch');
+        const result = await Image.prefetch(url);
+        console.log('🖼️ [preloadImage] React Native prefetch результат:', result);
+        return result;
+      } else if (typeof window !== 'undefined' && window.Image) {
+        // Web browser Image
+        console.log('🖼️ [preloadImage] Используем Web Image');
+        return new Promise((resolve) => {
+          const image = new window.Image();
+          image.onload = () => {
+            console.log('🖼️ [preloadImage] Web image загружено:', url);
+            resolve(true);
+          };
+          image.onerror = (error) => {
+            console.error('🖼️ [preloadImage] Web image ошибка:', error);
+            resolve(false);
+          };
+          image.src = url;
+        });
+      } else {
+        // Fallback - просто проверяем доступность URL
+        console.log('🖼️ [preloadImage] Fallback проверка URL:', url);
+        const response = await fetch(url, { 
+          method: 'HEAD',
+          cache: 'no-cache'
+        });
+        const success = response.ok;
+        console.log('🖼️ [preloadImage] HEAD запрос результат:', success);
+        return success;
+      }
+    } catch (error) {
+      console.error('🖼️ [preloadImage] Ошибка предзагрузки:', error);
+      return false;
+    }
   },
 
   async preloadImages(images: BackgroundImage[]): Promise<BackgroundImage[]> {

@@ -34,18 +34,12 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
   }, []);
 
   const loadImages = useCallback(async () => {
-    console.log('🖼️ [BackgroundSlider] Начинаем загрузку изображений...');
-    console.log('🖼️ [BackgroundSlider] Репозиторий:', settings.imageRepository);
-    
     try {
       setLoading(true);
       const newImages = await imageService.getImagesFromRepository(settings.imageRepository, 10);
-      console.log('🖼️ [BackgroundSlider] Получено изображений:', newImages.length);
       
       if (newImages.length > 0) {
-        console.log('🖼️ [BackgroundSlider] Первое изображение:', newImages[0]);
         const preloadedImages = await imageService.preloadImages(newImages);
-        console.log('🖼️ [BackgroundSlider] Изображения предзагружены:', preloadedImages.filter(img => img.loaded).length);
         setImages(preloadedImages);
         setCurrentImageIndex(0);
         
@@ -59,15 +53,13 @@ export const BackgroundSlider: React.FC<BackgroundSliderProps> = ({ settings }) 
           setCurrentShuffledIndex(0);
         }
       } else {
-        console.warn('🖼️ [BackgroundSlider] Изображения не получены, используем пустой массив');
         setImages([]);
       }
     } catch (error) {
-      console.error('❌ [BackgroundSlider] Ошибка загрузки изображений:', error);
+      console.error('Error loading background images:', error);
       setImages([]);
     } finally {
       setLoading(false);
-      console.log('🖼️ [BackgroundSlider] Загрузка завершена');
     }
   }, [settings.imageRepository]);
 
