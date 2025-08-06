@@ -121,5 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
     paddingTop: 60,
+    alignSelf: 'flex-start', // Предотвращаем растягивание по высоте
   },
 });
